@@ -1,9 +1,10 @@
-### Source - Week 5
+### Source - Week 6
 
 This repository includes source code examples developed for COMP 323-488.
 
 #### Contents
 
 * Pygame
-	* sprites
-	* Conway's Game of Life
+  * control
+  * sprites
+  * game example
