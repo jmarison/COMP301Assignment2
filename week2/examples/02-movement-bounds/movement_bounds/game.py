@@ -75,12 +75,9 @@ class Game:
         self.jump_requested = False
 
         self.time_left = self.TIMER_SECONDS
-        #timer power up
+        
         # Power up spawn
-        powerup_rect = pygame.Rect(0, 0, 24, 24)
-        pu_center = self._random_point_in_playfield(margin=70)
-        powerup_rect.center = (int(pu_center.x), int(pu_center.y))
-        self.powerup = Powerup(rect=powerup_rect)
+        self.powerup = Powerup(rect=pygame.Rect(0, 0, 24, 24))
 
 
         self.goal = Goal(pos=pygame.Vector2(0, 0))
@@ -118,12 +115,11 @@ class Game:
         #self.teleporter.rect.center = (int(tp_center.x), int(tp_center.y))
 
         #Power up
-        #reset to non-picked up
-        self.powerup.picked = False
         #Power up spawn
         powerup_center = self._random_point_in_playfield(margin=70)
-        self.powerup.pos = pygame.Vector2(int(powerup_center.x), int(powerup_center.y))
-        
+        self.powerup.rect.center = (int(powerup_center.x), int(powerup_center.y))
+        #reset to non-picked up
+        self.powerup.picked = False
         
         
         self.time_left = self.TIMER_SECONDS
