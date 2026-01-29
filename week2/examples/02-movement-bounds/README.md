@@ -27,3 +27,8 @@ From this folder:
 - `PLAYFIELD_PADDING`, `PLAYER_MAX_SPEED`, `TIMER_SECONDS`
 - Try swapping boundary mode defaults
 - Try making the teleporter a hazard instead
+
+## Changes
+- Added increasing amount of teleporters depending on the level
+- Adjusted friction to reduce the slippery "icy" feel
+- 

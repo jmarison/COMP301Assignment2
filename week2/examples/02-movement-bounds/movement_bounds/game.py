@@ -16,6 +16,13 @@ class Goal:
     pos: pygame.Vector2
     radius: int = 16
 
+#class for new powerup which upon pickup grants the player extra time
+@dataclass
+class Powerup:
+    rect: pygame.Rect
+    time: float = 3.0
+    picked: bool = False
+    
 @dataclass
 class Teleporter:
     rect: pygame.Rect
@@ -40,7 +47,7 @@ class Game:
     GRAVITY = 2200.0
     JUMP_SPEED = 820.0
 
-    TIMER_SECONDS = 30.0
+    TIMER_SECONDS = 15.0
 
     def __init__(self) -> None:
         self.screen = pygame.display.set_mode((self.SCREEN_W, self.SCREEN_H))
@@ -63,11 +70,18 @@ class Game:
         self.player_rect = pygame.Rect(0, 0, self.PLAYER_SIZE, self.PLAYER_SIZE)
         self.player_pos = pygame.Vector2(0, 0)
         self.player_vel = pygame.Vector2(0, 0)
-
+        
         self.on_ground = True
         self.jump_requested = False
 
         self.time_left = self.TIMER_SECONDS
+        #timer power up
+        # Power up spawn
+        powerup_rect = pygame.Rect(0, 0, 24, 24)
+        pu_center = self._random_point_in_playfield(margin=70)
+        powerup_rect.center = (int(pu_center.x), int(pu_center.y))
+        self.powerup = Powerup(rect=powerup_rect)
+
 
         self.goal = Goal(pos=pygame.Vector2(0, 0))
         
@@ -99,12 +113,19 @@ class Game:
             rect.center = (int(tp_center.x), int(tp_center.y))
             self.teleporters.append(Teleporter(rect=rect))
         
-        
-        
         #Single teleporter spawn
         #tp_center = self._random_point_in_playfield(margin=70)
         #self.teleporter.rect.center = (int(tp_center.x), int(tp_center.y))
 
+        #Power up
+        #reset to non-picked up
+        self.powerup.picked = False
+        #Power up spawn
+        powerup_center = self._random_point_in_playfield(margin=70)
+        self.powerup.pos = pygame.Vector2(int(powerup_center.x), int(powerup_center.y))
+        
+        
+        
         self.time_left = self.TIMER_SECONDS
 
         if not keep_state:
@@ -312,7 +333,10 @@ class Game:
                 new_pos = self._random_point_in_playfield(margin=80)
                 self.player_pos.update(new_pos)
                 self.player_rect.center = (int(new_pos.x), int(new_pos.y))
-                
+        # Collision
+        if self.player_rect.colliderect(self.powerup.rect) and self.powerup.picked == False:
+            self.time_left += self.powerup.time
+            self.powerup.picked = True
 
 
         # Teleporter: collision changes decision (risk/reward positional change).
@@ -378,6 +402,10 @@ class Game:
 
         for tele in self.teleporters:
             pygame.draw.rect(self.screen, (180, 142, 173), tele.rect, border_radius=6)
+        
+        # Powerup
+        if not self.powerup.picked:
+            pygame.draw.rect(self.screen, (250, 200, 0), self.powerup.rect, border_radius=3)
         
         # Player
         pygame.draw.rect(self.screen, (136, 192, 208), self.player_rect, border_radius=6)
