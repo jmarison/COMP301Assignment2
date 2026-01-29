@@ -19,6 +19,7 @@ class Goal:
 @dataclass
 class Teleporter:
     rect: pygame.Rect
+    speed: int = 250
 
 class Game:
     fps = 60
@@ -30,7 +31,10 @@ class Game:
     PLAYER_SIZE = 32
     PLAYER_ACCEL = 2400.0
     PLAYER_MAX_SPEED = 520.0
-    PLAYER_FRICTION = 10.0
+    PLAYER_FRICTION = 15.0
+    
+
+    
 
     # Platformer-style vertical movement
     GRAVITY = 2200.0
@@ -66,7 +70,10 @@ class Game:
         self.time_left = self.TIMER_SECONDS
 
         self.goal = Goal(pos=pygame.Vector2(0, 0))
-        self.teleporter = Teleporter(rect=pygame.Rect(0, 0, 40, 40))
+        
+        #Changed to a list to allow for multiple teleporters
+        self.teleporters: List[Teleporter] = []
+        #self.teleporter = Teleporter(rect=pygame.Rect(0, 0, 40, 40))
 
         self._reset_level(keep_state=True)
 
@@ -83,8 +90,20 @@ class Game:
         self.jump_requested = False
 
         self.goal.pos = self._random_point_in_playfield(margin=60)
-        tp_center = self._random_point_in_playfield(margin=70)
-        self.teleporter.rect.center = (int(tp_center.x), int(tp_center.y))
+        
+        #Multiple teleporter spawns
+        self.teleporters.clear()
+        for _ in range(self.level):
+            rect = pygame.Rect(0, 0, 40, 40)
+            tp_center = self._random_point_in_playfield(margin=70)
+            rect.center = (int(tp_center.x), int(tp_center.y))
+            self.teleporters.append(Teleporter(rect=rect))
+        
+        
+        
+        #Single teleporter spawn
+        #tp_center = self._random_point_in_playfield(margin=70)
+        #self.teleporter.rect.center = (int(tp_center.x), int(tp_center.y))
 
         self.time_left = self.TIMER_SECONDS
 
@@ -286,11 +305,21 @@ class Game:
 
             self._apply_bounds_player()
 
+
+        # Multiple Teleporters collision changes
+        for tele in self.teleporters:
+            if self.player_rect.colliderect(tele.rect):
+                new_pos = self._random_point_in_playfield(margin=80)
+                self.player_pos.update(new_pos)
+                self.player_rect.center = (int(new_pos.x), int(new_pos.y))
+                
+
+
         # Teleporter: collision changes decision (risk/reward positional change).
-        if self.player_rect.colliderect(self.teleporter.rect):
-            new_pos = self._random_point_in_playfield(margin=80)
-            self.player_pos.update(new_pos)
-            self.player_rect.center = (int(new_pos.x), int(new_pos.y))
+        #if self.player_rect.colliderect(self.teleporter.rect):
+            #new_pos = self._random_point_in_playfield(margin=80)
+            #self.player_pos.update(new_pos)
+            #self.player_rect.center = (int(new_pos.x), int(new_pos.y))
 
         if self._player_reaches_goal():
             self.level += 1
@@ -345,8 +374,11 @@ class Game:
         )
 
         # Teleporter
-        pygame.draw.rect(self.screen, (180, 142, 173), self.teleporter.rect, border_radius=6)
+        #pygame.draw.rect(self.screen, (180, 142, 173), self.teleporter.rect, border_radius=6)
 
+        for tele in self.teleporters:
+            pygame.draw.rect(self.screen, (180, 142, 173), tele.rect, border_radius=6)
+        
         # Player
         pygame.draw.rect(self.screen, (136, 192, 208), self.player_rect, border_radius=6)
 

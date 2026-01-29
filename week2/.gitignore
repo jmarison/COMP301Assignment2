@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Pygame / OS junk
+.DS_Store
+Thumbs.db
+
+# VS Code settings 
+.vscode/
+
+# Logs / temp
+*.logx
+
+# Build / dist
+build/
+dist/
